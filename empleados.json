@@ -1,0 +1,82 @@
+[
+  {
+    "iduniqemp": "emp1-cmp",
+    "name": "employee1",
+    "cargo": "Gerente Comercial",
+    "area": "Comercial",
+    "initevaluate": true,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee1/employee1.jpg"
+  },
+  {
+    "iduniqemp": "emp2-cmp",
+    "name": "employee2",
+    "cargo": "Gerente Operaciones",
+    "area": "Operaciones",
+    "initevaluate": true,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee2/employee2.jpg"
+  },
+  {
+    "iduniqemp": "emp3-cmp",
+    "name": "employee3",
+    "cargo": "Gerente Financiero",
+    "area": "Contabilidad",
+    "initevaluate": false,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee3/employee3.jpg"
+  },
+  {
+    "iduniqemp": "emp4-cmp",
+    "name": "employee4",
+    "cargo": "Gerente RRHH",
+    "area": "Talento Humano",
+    "initevaluate": true,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee4/employee4.jpg"
+  },
+  {
+    "iduniqemp": "emp5-cmp",
+    "name": "employee5",
+    "cargo": "Gerente General",
+    "area": "Comercial",
+    "initevaluate": true,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee5/employee5.jpg"
+  },
+  {
+    "iduniqemp": "emp6-cmp",
+    "name": "employee6",
+    "cargo": "Jefe Logistico",
+    "area": "Operaciones",
+    "initevaluate": true,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee6/employee6.jpg"
+  },
+  {
+    "iduniqemp": "emp7-cmp",
+    "name": "employee7",
+    "cargo": "Profesional Tecnologia",
+    "area": "Tecnología",
+    "initevaluate": false,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee7/employee7.jpg"
+  },
+  {
+    "iduniqemp": "emp8-cmp",
+    "name": "employee8",
+    "cargo": "Lider de Equipo Técnico",
+    "area": "Operaciones",
+    "initevaluate": false,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee8/employee8.jpg"
+  },
+  {
+    "iduniqemp": "emp9-cmp",
+    "name": "employee9",
+    "cargo": "Ingeniero Comercial",
+    "area": "Comercial",
+    "initevaluate": false,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee9/employee9.jpg"
+  },
+  {
+    "iduniqemp": "emp10-cmp",
+    "name": "employee10",
+    "cargo": "Analista Contable",
+    "area": "Contabilidad",
+    "initevaluate": false,
+    "imageUrl": "http://localhost:12347/data/images/employee/employee10/employee10.jpg"
+  }
+]

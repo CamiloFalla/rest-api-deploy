@@ -1,0 +1,28 @@
+### Recuperar todos los empleados
+GET http://localhost:12347/empleados
+
+### Recuperar un empleado por iduniqemp
+GET http://localhost:12347/empleados/emp8-cmp
+
+### Recuperar todos los empleados por una area
+GET  http://localhost:12347/empleados?area=legal
+
+### Vamos a crear un empleado de la organización
+POST http://localhost:12347/empleados
+Content-Type: application/json
+
+{
+  "iduniqemp": "emp11-cmp",
+  "name": "employee11",
+  "cargo": "Abogado Senior",
+  "area": "Legal",
+  "initevaluate": false
+}
+
+### Actualizar un empleado
+PATCH http://localhost:12347/empleados/emp5-cmp
+Content-Type: application/json
+
+{
+  
+}
