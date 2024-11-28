@@ -1,7 +1,7 @@
 import express, { json, static as serveStatic } from 'express';
-import cors from 'cors';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import corsMiddleware from './middlewares/cors.js';
 import empleadosRouter from './routes/empleados.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -10,13 +10,7 @@ const __dirname = join(__filename, '..');
 const app = express();
 
 // Configuración de CORS
-const corsOptions = {
-  origin: 'http://localhost:8080',
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-};
-
-app.use(cors(corsOptions));
+app.use(corsMiddleware);
 app.use(json());
 app.disable('x-powered-by');
 
