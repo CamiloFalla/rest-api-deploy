@@ -1,7 +1,7 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 // Definir el enum para áreas permitidas
-const areaEnum = z.enum([
+export const areaEnum = z.enum([
   'Operaciones',
   'Comercial',
   'Contabilidad',
@@ -11,12 +11,10 @@ const areaEnum = z.enum([
 ]);
 
 // Esquema del empleado
-const employeeSchema = z.object({
+export const employeeSchema = z.object({
   iduniqemp: z.string(),
   name: z.string(),
   cargo: z.string(),
   area: areaEnum,
   initevaluate: z.boolean()
 });
-
-module.exports = { employeeSchema };
