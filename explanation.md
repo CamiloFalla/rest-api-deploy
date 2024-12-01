@@ -145,8 +145,48 @@ app.listen(PORT, () => {
 
 Para el despliegue vams a apronder como hacerlo en fl0
 
+Patron de diseño o de arquitectura MVC
+
+Patron es algo repetible en algo de tu diseño
+
+y un Patron de arquitectura aplica para todo el proyecto
+
+MVC
+Model View Controller
+
+Muy aplicable a aplocaciones web y moviles
+
+Vamos a entender primero en que consiste el Modelo Vista Controlador
+
+El modelo, representa la logica del negocio, es quien se encarga de validar todo lo funcional
+
+El controlador, es el que actua como un intermediaro entre el modelo y la vista y antes de llegar al modelo es el controlador quien se encarga de ver y de hacer operaciones, podria ser llamado como el orquestador y actua como intermediario
+
+La vista es quien representa la informacion y es la interfaz del usuario
+
+Aqui seria un modelo de 3 capas y deben interactuar entreellas de alguna forma
 
 
+El controlador, inicia la vista
 
+Con base en eso n la interfaz la vista enviara acciones, modificar
+ y el controlador lo recibira y lo enviara al modelo
+
+ Nunca la vista debe tener acceso al modelo y siempre debe pasara por el controlador
+
+En el frontend podrias tener:
+React
+Next.js
+json
+
+
+En el modelo
+
+MySQL, el modelo accde directamente a bases de datos o conectarse a muchos sitios como local
+mongoDB
+
+La ventaja principal es separar la logica de negocio de la vista
+
+Lo importante es poder hacer mejoras en cada caso que no afecte a ambas partes
 
 

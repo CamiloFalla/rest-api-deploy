@@ -1,6 +1,9 @@
 import cors from 'cors';
 
-const allowedOrigins = ['http://localhost:8080', 'http://localhost:3000']; // Agrega aquí los dominios permitidos
+const allowedOrigins = [
+  'http://localhost:8080', 
+  'http://localhost:3000'
+];
 
 const corsMiddleware = cors({
   origin: (origin, callback) => {

@@ -2,27 +2,62 @@
 GET http://localhost:12348/empleados
 
 ### Recuperar un empleado por iduniqemp
-GET http://localhost:12348/empleados/emp8-cmp
+GET http://localhost:12348/empleados/1
 
 ### Recuperar todos los empleados por una area
-GET  http://localhost:12348/empleados?area=legal
+GET http://localhost:12348/empleados?area=Legal
 
 ### Vamos a crear un empleado de la organización
 POST http://localhost:12348/empleados
 Content-Type: application/json
 
 {
-  "iduniqemp": "emp11-cmp",
-  "name": "employee11",
-  "cargo": "Abogado Senior",
-  "area": "Legal",
-  "initevaluate": false
+  "id_cargo": 2,
+  "nombre": "Luis",
+  "apellidos": "García",
+  "username": "luisgarcia",
+  "email": "luis.garcia@example.com",
+  "fecha_nacimiento": "1992-07-20",
+  "fecha_ingreso": "2024-01-01",
+  "residencia": "Calle 50 #10-20",
+  "ciudad_residencia": "Bogotá",
+  "estrato": 4,
+  "activo": true
 }
 
 ### Actualizar un empleado
-PATCH http://localhost:12348/empleados/emp5-cmp
+PATCH http://localhost:12348/empleados/1
 Content-Type: application/json
 
 {
-  
+  "nombre": "Camilo Actualizado",
+  "ciudad_residencia": "Cali",
+  "activo": false
+}
+
+### Eliminar un empleado
+DELETE http://localhost:12348/empleados/5
+
+### Subir una imagen de perfil de un empleado
+POST http://localhost:12348/empleados/1/upload
+Content-Type: multipart/form-data
+
+File: {imagen.jpg} // Selecciona un archivo desde tu cliente (Postman/Insomnia).
+
+### Subir un archivo medico del empleado
+POST http://localhost:12348/empleados/5/upload/medical
+Content-Type: multipart/form-data
+
+File: {examen_medico.pdf} // Archivo de examen médico en el campo "file"
+
+### Obtener una imagen de un empleado
+GET http://localhost:12348/empleados/5/profile-image
+
+### Obtener un documento registro medico de un empleado
+GET http://localhost:12348/empleados/5/medical-records/registro_medico_2024.pdf
+
+### Actualizar otro empleado
+{
+  "email": "ana.gomez@update.com",
+  "activo": false
 }

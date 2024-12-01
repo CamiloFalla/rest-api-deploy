@@ -1,133 +1,187 @@
 import express from 'express';
 import multer from 'multer';
-import { join } from 'node:path';
-import { existsSync, mkdirSync, rename } from 'node:fs';
-import empleados from '../empleados.json' assert { type: 'json' };
+import pool from '../models/db.js';
+import { uploadFile } from '../models/s3.js';
 import { employeeSchema } from '../schemas/empleado.js';
 
 const router = express.Router();
 
-// Configuración de Multer
+// Configuración de Multer para manejo de imágenes y archivos
 const upload = multer({
-  dest: join('data/images/employee'),
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('El archivo debe ser una imagen'), false);
-    }
-    cb(null, true);
-  },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // Límite de 2 MB
 });
 
-// Obtener todos los empleados
-router.get('/', (req, res) => {
+// Middleware para registrar y validar el cuerpo JSON
+router.use((req, res, next) => {
+  if (req.body && typeof req.body === 'object') {
+    console.log('Cuerpo recibido:', req.body);
+    next();
+  } else {
+    res.status(400).json({ message: 'Cuerpo de la solicitud no válido' });
+  }
+});
+
+// **Recuperar todos los empleados**
+router.get('/', async (req, res) => {
   const { area } = req.query;
-
-  const empleadosWithImages = empleados.map((employee) => {
-    const imagePath = `data/images/employee/${employee.iduniqemp}/${employee.iduniqemp}.jpg`;
-    return {
-      ...employee,
-      imageUrl: `http://localhost:${process.env.PORT ?? 12348}/${imagePath}`,
-    };
-  });
-
-  if (area) {
-    const normalizedQuery = area.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const filteredArea = empleadosWithImages.filter((employee) =>
-      employee.area.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(normalizedQuery)
-    );
-    return res.json({ data: filteredArea });
+  try {
+    const query = `
+      SELECT e.*, c.nombre AS cargo, a.nombre AS area
+      FROM empleados e
+      JOIN cargos c ON e.id_cargo = c.id_cargo
+      JOIN areas a ON c.id_area = a.id_area
+    `;
+    const { rows } = await pool.query(area ? `${query} WHERE a.nombre = $1` : query, area ? [area] : []);
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener empleados' });
   }
-
-  res.json({ data: empleadosWithImages });
 });
 
-// Obtener un empleado por iduniqemp
-router.get('/:iduniqemp', (req, res) => {
-  const { iduniqemp } = req.params;
-  const employee = empleados.find((emp) => emp.iduniqemp === iduniqemp);
+// **Recuperar un empleado por ID**
+router.get('/:id_empleado', async (req, res) => {
+  const { id_empleado } = req.params;
+  try {
+    const query = `
+      SELECT e.*, c.nombre AS cargo, a.nombre AS area
+      FROM empleados e
+      JOIN cargos c ON e.id_cargo = c.id_cargo
+      JOIN areas a ON c.id_area = a.id_area
+      WHERE e.id_empleado = $1
+    `;
+    const { rows } = await pool.query(query, [id_empleado]);
+    if (!rows.length) return res.status(404).json({ message: 'Empleado no encontrado' });
 
-  if (!employee) {
-    return res.status(404).json({ message: 'Empleado no encontrado' });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener el empleado' });
   }
-
-  const imagePath = `data/images/employee/${employee.iduniqemp}/${employee.iduniqemp}.jpg`;
-  res.json({
-    ...employee,
-    imageUrl: `http://localhost:${process.env.PORT ?? 12348}/${imagePath}`,
-  });
 });
 
-// Crear un nuevo empleado
-router.post('/', (req, res) => {
+// **Crear un empleado**
+router.post('/', async (req, res) => {
   try {
     const validatedEmployee = employeeSchema.parse(req.body);
+    const {
+      id_cargo,
+      nombre,
+      apellidos,
+      username,
+      email,
+      fecha_nacimiento,
+      fecha_ingreso,
+      residencia,
+      ciudad_residencia,
+      estrato,
+      activo,
+    } = validatedEmployee;
 
-    const exists = empleados.find((emp) => emp.iduniqemp === validatedEmployee.iduniqemp);
-    if (exists) {
-      return res.status(409).json({ message: `El empleado con iduniqemp ${validatedEmployee.iduniqemp} ya existe.` });
-    }
+    const query = `
+      INSERT INTO empleados (id_cargo, nombre, apellidos, username, email, fecha_nacimiento, fecha_ingreso, residencia, ciudad_residencia, estrato, activo)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *
+    `;
+    const values = [id_cargo, nombre, apellidos, username, email, fecha_nacimiento, fecha_ingreso, residencia, ciudad_residencia, estrato, activo];
+    const { rows } = await pool.query(query, values);
 
-    const newEmployee = { id: crypto.randomUUID(), ...validatedEmployee };
-    empleados.push(newEmployee);
-
-    res.status(201).json({ message: 'Empleado creado', employee: newEmployee });
+    res.status(201).json(rows[0]);
   } catch (error) {
-    res.status(400).json({ message: 'Datos inválidos', errors: error.errors });
+    console.error(error);
+    res.status(400).json({ message: 'Datos inválidos', errors: error.errors || error.message });
   }
 });
 
-// Actualizar un empleado
-router.patch('/:iduniqemp', (req, res) => {
-  const { iduniqemp } = req.params;
-  const employee = empleados.find((emp) => emp.iduniqemp === iduniqemp);
-
-  if (!employee) return res.status(404).json({ message: 'Empleado no encontrado' });
+// **Actualizar información de un empleado**
+router.patch('/:id_empleado', async (req, res) => {
+  const { id_empleado } = req.params;
 
   try {
-    const updates = employeeSchema.partial().parse(req.body);
-    Object.assign(employee, updates);
+    const updates = req.body;
+    const setQuery = Object.keys(updates)
+      .map((key, i) => `${key} = $${i + 1}`)
+      .join(', ');
+    const values = Object.values(updates);
 
-    res.json({ message: 'Empleado actualizado', employee });
+    const { rowCount } = await pool.query(
+      `UPDATE empleados SET ${setQuery} WHERE id_empleado = $${values.length + 1}`,
+      [...values, id_empleado]
+    );
+
+    if (!rowCount) return res.status(404).json({ message: 'Empleado no encontrado' });
+    res.json({ message: 'Empleado actualizado' });
   } catch (error) {
-    res.status(400).json({ message: 'Datos inválidos', errors: error.errors });
+    console.error(error);
+    res.status(400).json({ message: 'Error al actualizar el empleado', errors: error.errors || error.message });
   }
 });
 
-// Eliminar un empleado
-router.delete('/:iduniqemp', (req, res) => {
-  const { iduniqemp } = req.params;
+// **Eliminar un empleado**
+router.delete('/:id_empleado', async (req, res) => {
+  const { id_empleado } = req.params;
 
-  const index = empleados.findIndex((emp) => emp.iduniqemp === iduniqemp);
-  if (index === -1) return res.status(404).json({ message: 'Empleado no encontrado' });
+  try {
+    const { rowCount } = await pool.query('DELETE FROM empleados WHERE id_empleado = $1', [id_empleado]);
+    if (!rowCount) return res.status(404).json({ message: 'Empleado no encontrado' });
 
-  const [deletedEmployee] = empleados.splice(index, 1);
-
-  res.json({ message: 'Empleado eliminado', employee: deletedEmployee });
+    res.json({ message: 'Empleado eliminado' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al eliminar el empleado' });
+  }
 });
 
-// Subir una imagen
-router.post('/:iduniqemp/upload', upload.single('image'), (req, res) => {
-  const { iduniqemp } = req.params;
-  const employee = empleados.find((emp) => emp.iduniqemp === iduniqemp);
+// **Subir una imagen de perfil**
+router.post('/:id_empleado/upload', upload.single('image'), async (req, res) => {
+  const { id_empleado } = req.params;
 
-  if (!employee) return res.status(404).json({ message: 'Empleado no encontrado' });
+  if (!req.file) return res.status(400).json({ message: 'No se recibió un archivo' });
 
-  const employeeImageDir = join('data/images/employee', employee.iduniqemp);
-  const employeeImagePath = join(employeeImageDir, `${employee.iduniqemp}.jpg`);
+  try {
+    const key = `empleados/${id_empleado}/perfil/${req.file.originalname}`;
+    const bucket = process.env.BUCKET_NAME;
 
-  if (!existsSync(employeeImageDir)) {
-    mkdirSync(employeeImageDir, { recursive: true });
+    const result = await uploadFile(req.file, bucket, key);
+
+    const imageUrl = result.Location;
+    const { rowCount } = await pool.query('UPDATE empleados SET imagen = $1 WHERE id_empleado = $2', [imageUrl, id_empleado]);
+
+    if (!rowCount) return res.status(404).json({ message: 'Empleado no encontrado' });
+
+    res.json({ message: 'Imagen subida correctamente', imageUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al subir la imagen', error: error.message });
   }
+});
 
-  rename(req.file.path, employeeImagePath, (err) => {
-    if (err) return res.status(500).json({ message: 'Error al procesar la imagen', error: err.message });
+// **Subir un archivo médico**
+router.post('/:id_empleado/medical/upload', upload.single('file'), async (req, res) => {
+  const { id_empleado } = req.params;
 
-    res.json({
-      message: 'Imagen subida correctamente',
-      imageUrl: `http://localhost:${process.env.PORT ?? 12348}/data/images/employee/${employee.iduniqemp}/${employee.iduniqemp}.jpg`,
-    });
-  });
+  if (!req.file) return res.status(400).json({ message: 'No se recibió un archivo' });
+
+  try {
+    const key = `empleados/${id_empleado}/registros-medicos/${req.file.originalname}`;
+    const bucket = process.env.BUCKET_NAME;
+
+    const result = await uploadFile(req.file, bucket, key);
+
+    const fileUrl = result.Location;
+    const query = `
+      INSERT INTO registros_medicos (id_empleado, año, archivo_examen)
+      VALUES ($1, $2, $3)
+    `;
+    const values = [id_empleado, new Date().getFullYear(), fileUrl];
+
+    await pool.query(query, values);
+    res.json({ message: 'Archivo médico subido correctamente', fileUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al subir el archivo médico', error: error.message });
+  }
 });
 
 export default router;
