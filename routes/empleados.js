@@ -134,25 +134,38 @@ router.delete('/:id_empleado', async (req, res) => {
 });
 
 // **Subir una imagen de perfil**
+// Subir una imagen de perfil
 router.post('/:id_empleado/upload', upload.single('image'), async (req, res) => {
   const { id_empleado } = req.params;
 
-  if (!req.file) return res.status(400).json({ message: 'No se recibió un archivo' });
+  if (!req.file) {
+    return res.status(400).json({ message: 'No se recibió un archivo. Verifica el campo "image".' });
+  }
 
   try {
-    const key = `empleados/${id_empleado}/perfil/${req.file.originalname}`;
     const bucket = process.env.BUCKET_NAME;
+    const key = `test-folder/empleados/${id_empleado}/perfil/${req.file.originalname}`;
+
+    console.log('Subiendo archivo al bucket:', bucket);
+    console.log('Clave (ruta en S3):', key);
 
     const result = await uploadFile(req.file, bucket, key);
 
-    const imageUrl = result.Location;
-    const { rowCount } = await pool.query('UPDATE empleados SET imagen = $1 WHERE id_empleado = $2', [imageUrl, id_empleado]);
+    const imageUrl = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
-    if (!rowCount) return res.status(404).json({ message: 'Empleado no encontrado' });
+    // Actualizar la URL de la imagen en la base de datos
+    const { rowCount } = await pool.query(
+      'UPDATE empleados SET imagen = $1 WHERE id_empleado = $2',
+      [imageUrl, id_empleado]
+    );
+
+    if (!rowCount) {
+      return res.status(404).json({ message: 'Empleado no encontrado' });
+    }
 
     res.json({ message: 'Imagen subida correctamente', imageUrl });
   } catch (error) {
-    console.error(error);
+    console.error('Error al subir la imagen:', error);
     res.status(500).json({ message: 'Error al subir la imagen', error: error.message });
   }
 });

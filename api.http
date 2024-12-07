@@ -7,21 +7,21 @@ GET http://localhost:12348/empleados/1
 ### Recuperar todos los empleados por una area
 GET http://localhost:12348/empleados?area=Legal
 
-### Vamos a crear un empleado de la organización
-POST http://localhost:12348/empleados
+### Crear un empleado de la organización
+POST https://o8osixauuc.execute-api.us-east-1.amazonaws.com/dev/empleados
 Content-Type: application/json
 
 {
-  "id_cargo": 2,
-  "nombre": "Luis",
-  "apellidos": "García",
-  "username": "luisgarcia",
-  "email": "luis.garcia@example.com",
-  "fecha_nacimiento": "1992-07-20",
-  "fecha_ingreso": "2024-01-01",
-  "residencia": "Calle 50 #10-20",
-  "ciudad_residencia": "Bogotá",
-  "estrato": 4,
+  "id_cargo": 3,
+  "nombre": "Diego",
+  "apellidos": "Maradona",
+  "username": "dmaradona",
+  "email": "maradona.d@example.com",
+  "fecha_nacimiento": "1960-10-30T00:00:00.000Z",
+  "fecha_ingreso": "2023-09-15T00:00:00.000Z",
+  "residencia": "Avenida Siempre Viva",
+  "ciudad_residencia": "Buenos Aires",
+  "estrato": 5,
   "activo": true
 }
 
@@ -61,3 +61,19 @@ GET http://localhost:12348/empleados/5/medical-records/registro_medico_2024.pdf
   "email": "ana.gomez@update.com",
   "activo": false
 }
+
+### Subir una imagen con REST Client
+POST http://localhost:12348/empleados/1/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="imagen.jpg"
+Content-Type: image/jpeg
+
+< ./Users/camilofalla/Documents/developer/fullstack/proyecto_poli/rest-api-deploy/data/images/imagen.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### PRUEBAS CON EL BACKEND EC2 DESPLEGADO
+
+### Recuperar un empleado por iduniqemp
+GET http://3.88.209.44:12348/empleados/

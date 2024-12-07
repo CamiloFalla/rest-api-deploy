@@ -9,3 +9,6 @@ node_modules/
 
 # Ignorar dependencias de entorno específico
 .DS_Store
+
+#Ignorar awspermissions
+awspermissions/

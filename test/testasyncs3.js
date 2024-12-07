@@ -13,34 +13,40 @@ const s3 = new S3Client({
   },
 });
 
-// Función de prueba para cargar archivo
-async function testUploadS3() {
+// Función de prueba para cargar archivo simulando Multer
+async function testUploadSimulatedMulter() {
   const filePath = '/Users/camilofalla/Documents/imagestest/example.txt'; // Ruta absoluta
   const bucketName = process.env.BUCKET_NAME;
   const key = 'test-folder/example.txt'; // Ubicación en el bucket
 
-  // Leer el archivo local
-  const fileContent = fs.readFileSync(filePath);
+  // Leer el archivo local simulando el objeto que genera Multer
+  const fileBuffer = fs.readFileSync(filePath);
+  const simulatedMulterFile = {
+    buffer: fileBuffer, // Simula el buffer que entrega Multer
+    mimetype: 'text/plain', // Simula el mimetype que entrega Multer
+    originalname: 'example.txt', // Nombre original del archivo
+  };
 
   console.log('Subiendo archivo a S3 con los siguientes datos:');
   console.log(`Bucket: ${bucketName}`);
   console.log(`Key: ${key}`);
+  console.log(`Simulando archivo Multer:`, simulatedMulterFile);
 
   // Parámetros para la carga
   const params = {
     Bucket: bucketName,
     Key: key,
-    Body: fileContent,
-    ContentType: 'text/plain',
+    Body: simulatedMulterFile.buffer, // Usamos el buffer simulado
+    ContentType: simulatedMulterFile.mimetype, // Usamos el mimetype simulado
   };
 
   try {
     const command = new PutObjectCommand(params);
     const result = await s3.send(command);
-    console.log('Archivo subido exitosamente:', result);
+    console.log('Archivo subido exitosamente desde simulación de Multer:', result);
   } catch (error) {
-    console.error('Error subiendo archivo a S3:', error);
+    console.error('Error subiendo archivo desde simulación de Multer:', error);
   }
 }
 
-testUploadS3();
+testUploadSimulatedMulter();
