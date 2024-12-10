@@ -252,4 +252,7 @@ router.patch('/:id_empleado', async (req, res) => {
   }
 });
 
+
+
+
 export default router;
