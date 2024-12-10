@@ -2,7 +2,8 @@
 GET http://localhost:12348/empleados
 
 ### Recuperar un empleado por iduniqemp
-GET http://localhost:12348/empleados/1
+GET http://localhost:12348/empleados/2
+
 
 ### Recuperar todos los empleados por una area
 GET http://localhost:12348/empleados?area=Legal
@@ -12,16 +13,16 @@ POST https://o8osixauuc.execute-api.us-east-1.amazonaws.com/dev/empleados
 Content-Type: application/json
 
 {
-  "id_cargo": 3,
-  "nombre": "Diego",
-  "apellidos": "Maradona",
-  "username": "dmaradona",
-  "email": "maradona.d@example.com",
-  "fecha_nacimiento": "1960-10-30T00:00:00.000Z",
-  "fecha_ingreso": "2023-09-15T00:00:00.000Z",
-  "residencia": "Avenida Siempre Viva",
-  "ciudad_residencia": "Buenos Aires",
-  "estrato": 5,
+  "id_cargo": 4,
+  "nombre": "Enrique",
+  "apellidos": "Gomez",
+  "username": "Kiko",
+  "email": "kikod@example.com",
+  "fecha_nacimiento": "1950-02-02T00:00:00.000Z",
+  "fecha_ingreso": "2018-03-10T00:00:00.000Z",
+  "residencia": "La vecindad del chavo del 8",
+  "ciudad_residencia": "Mexico",
+  "estrato": 2,
   "activo": true
 }
 
@@ -77,3 +78,90 @@ Content-Type: image/jpeg
 
 ### Recuperar un empleado por iduniqemp
 GET http://3.88.209.44:12348/empleados/
+
+### PRUEBAS CON EL BACKEND EC2 DESPLEGADO
+
+### Recuperar un empleado por iduniqemp
+GET http://localhost:12348/empleados/12
+
+
+### Recuperar un empleado por iduniqemp
+GET http://localhost:12348/empleados/2
+
+
+### Nueva actualizacion
+PATCH http://localhost:12348/empleados/1
+Content-Type: application/json
+
+{
+  "id_cargo": 1,
+  "nombre": "Camilo Andres",
+  "apellidos": "Falla",
+  "username": "camilofalla",
+  "email": "camilo.falla@example.com",
+  "fecha_nacimiento": "1990-01-01T05:00:00.000Z",
+  "fecha_ingreso": "2023-01-01T05:00:00.000Z",
+  "fecha_egreso": null,
+  "activo": false,
+  "residencia": "Calle 123",
+  "ciudad_residencia": "Bogota",
+  "estrato": 3,
+  "imagen": "https://empresa-empleados-s3.s3.us-east-2.amazonaws.com/test-folder/empleados/1/perfil/imagen.jpg",
+  "cargo": "Desarrollador Full Stack",
+  "area": "Tecnología"
+}
+
+### Listar los cargos
+GET http://localhost:12348/cargos
+Content-Type: application/json
+
+### Crear un empleado de la organización
+POST http://localhost:12348/empleados
+Content-Type: application/json
+
+{
+  "id_cargo": 4,
+  "nombre": "Enrique",
+  "apellidos": "Gomez",
+  "username": "Kiko",
+  "email": "kikod@example.com",
+  "fecha_nacimiento": "1950-02-02",
+  "fecha_ingreso": "2018-03-10",
+  "residencia": "La vecindad del chavo del 8",
+  "ciudad_residencia": "Mexico",
+  "estrato": 2,
+  "activo": true
+}
+
+
+### Crear un empleado de la organización
+POST http://3.88.209.44:12348/empleados/empleados
+Content-Type: application/json
+
+{
+  "id_cargo": 4,
+  "nombre": "Enrique",
+  "apellidos": "Gomez",
+  "username": "Kiko",
+  "email": "kikod@example.com",
+  "fecha_nacimiento": "1950-02-02",
+  "fecha_ingreso": "2018-03-10",
+  "residencia": "La vecindad del chavo del 8",
+  "ciudad_residencia": "Mexico",
+  "estrato": 2,
+  "activo": true
+}
+
+
+### Agregar Cargo
+GET http://localhost:12348/cargos/areas
+Content-Type: application/json"
+
+### Agregar Cargo
+POST http://localhost:12348/cargos
+Content-Type: application/json"
+
+{
+  "nombre": "Ingeniero de Datos",
+  "id_area": 1
+}
